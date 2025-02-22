@@ -20,8 +20,11 @@ public class LoginDao {
             pstm.setString(2, loginBean.pass);
             rs = pstm.executeQuery();
             if(rs.next()){
+                //Se asigna el permiso
                 String permisos = rs.getInt("id") == 1 ? "admin" : "user";
+                //Se asigna la sesion con el permiso
                 session.setAttribute("session", loginBean.mail+"/"+loginBean.pass+"/"+permisos);
+                //Se retorna true si la sesion se asigno correctamente
                 return session.getAttribute("session") != null;
             }
         } catch (Exception e) {

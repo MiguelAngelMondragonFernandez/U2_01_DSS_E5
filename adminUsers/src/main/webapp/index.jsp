@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Inicio de sesión</title>
 </head>
 <body>
@@ -31,16 +31,27 @@
         const passInput = document.getElementById('pass');
         passInput.type = passInput.type === 'password' ? 'text' : 'password';
     }
+    // Evento para el formulario de inicio de sesion
     document.getElementById('loginForm').addEventListener('submit', async (e)=> {
+        Swal.fire({
+            title: 'Iniciando sesion',
+            html: 'Por favor espere',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
         e.preventDefault();
-        const SECRET_KEY = "Hello_Unhappy";
+        // Obtenemos los datos del formulario
         const formData = new FormData(e.target);
         const data = {
             mail: formData.get('mail'),
             pass: formData.get('pass')
         }
+        // Enviamos los datos al servidor
         try{
-            const response = await fetch('signIn', {
+            await fetch('signIn', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -48,9 +59,23 @@
                 body: JSON.stringify(data)
             }).then(response => response.json()).then((data)=>{
                 if(data === "fail"){
-                    alert("Correo o contraseña incorrectos");
-                }else{
-                    window.location.href = "home.jsp";
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Correo y/o contraseña incorrectos',
+                        showConfirmButton: false,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Bienvenido',
+                        text: 'Inicio de sesion exitoso',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    setTimeout(()=>{
+                        window.location.href = "home.jsp";
+                    }, 1500);
                 }
             });
         }catch (e) {

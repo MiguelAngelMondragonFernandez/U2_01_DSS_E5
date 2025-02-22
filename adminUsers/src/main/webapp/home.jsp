@@ -12,20 +12,5 @@
 </head>
 <body>
 <h1>Hello Unhappy</h1>
-<script>
-    window.onload = ()=>{
-        comprobarSesion();
-    }
-    async function comprobarSesion(){
-        const session = await fetch('', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => response.json()).then((data)=>{
-            data === "fail" ? window.location.href = "403.jsp" : null;
-        });
-    };
-</script>
 </body>
 </html>

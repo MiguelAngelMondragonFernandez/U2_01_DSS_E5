@@ -13,6 +13,7 @@ import java.io.IOException;
 @WebServlet(name = "ServletLogin", urlPatterns = {
         "/signIn",
         "/signOut",
+        "/login",
         "/getPermisos",
         "/ServeltLogin",
 })
@@ -33,6 +34,9 @@ public class ServletLogin extends HttpServlet {
         HttpSession session = req.getSession();
         action = req.getServletPath();
         switch (action) {
+            case "/login":
+                res.sendRedirect(req.getContextPath() + "/index.jsp");
+                break;
             case "/signIn":
                 loginBean = gson.fromJson(requestBody, LoginBean.class);
                 boolean response = dao.login(loginBean, session);
@@ -48,6 +52,10 @@ public class ServletLogin extends HttpServlet {
                     json = gson.toJson("fail");
                 }
                 res.getWriter().write(json);
+                break;
+            case "/signOut":
+                session.invalidate();
+                res.sendRedirect(req.getContextPath() + "/index.jsp");
                 break;
         }
     }
