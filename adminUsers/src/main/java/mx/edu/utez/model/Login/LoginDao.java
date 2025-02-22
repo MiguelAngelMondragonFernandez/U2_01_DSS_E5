@@ -13,6 +13,7 @@ public class LoginDao {
 
     public static boolean login(LoginBean loginBean, HttpSession session){
         String sqlQuery = "SELECT * FROM usuarios where correo = ? and contrasena = sha1(?);";
+        String sqlBitacora = "INSERT INTO bitacora VALUES (null, ?, ?, CURDATE());";
         try{
             con = connection.getConnection();
             pstm = con.prepareStatement(sqlQuery);
@@ -25,7 +26,11 @@ public class LoginDao {
                 //Se asigna la sesion con el permiso
                 session.setAttribute("session", loginBean.mail+"/"+loginBean.pass+"/"+permisos);
                 //Se retorna true si la sesion se asigno correctamente
-                return session.getAttribute("session") != null;
+                pstm = con.prepareStatement(sqlBitacora);
+                pstm.setInt(1, rs.getInt("id"));
+                pstm.setString(2, "Metodo POST");
+                long res = pstm.executeUpdate();
+                return session.getAttribute("session") != null && res > 0;
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
