@@ -17,7 +17,7 @@
         comprobarSesion();
     }
     async function comprobarSesion(){
-        const session = await fetch('getPermisos', {
+        const session = await fetch('', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

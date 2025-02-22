@@ -9,33 +9,47 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 @WebServlet(name = "ServletUsuario", urlPatterns= {
-        "/incio"
+        "/inicio"
 })
 public class ServletUsuario extends HttpServlet {
 
     protected void proccessRequest(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        HttpSession session = req.getSession();
         Gson gson = new Gson();
+        String json = "";
+        res.setContentType("application/json");
+        req.setCharacterEncoding("UTF-8");
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = req.getReader();
-        String json = "";
         String requestBody = sb.append(reader.readLine()).toString();
-        String redirect = "/";
+        HttpSession session = req.getSession();
+        String data = (String) session.getAttribute("session");
         String action = req.getServletPath();
-
-        switch (action) {
-            case "/inicio":
-                break;
+        if(data != null){
+            String[] dataSession = data.split("/");
+            if(dataSession[2].equals("admin")){
+                switch (action) {
+                    case "/inicio":
+                        res.sendRedirect(req.getContextPath()+"/home.jsp");
+                        System.out.println("Inicio");
+                        break;
+                }
+            } else {
+                res.sendRedirect(req.getContextPath()+"/403.jsp");
+            }
+        }else{
+            res.sendRedirect(req.getContextPath()+"/403.jsp");
         }
+
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        proccessRequest(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        proccessRequest(request, response);
     }
 }
