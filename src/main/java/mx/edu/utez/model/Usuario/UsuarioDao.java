@@ -4,6 +4,8 @@ import javax.crypto.spec.*;
 
 import static java.util.Base64.getDecoder;
 import static java.util.Base64.getEncoder;
+
+import jakarta.servlet.http.HttpSession;
 import mx.edu.utez.utils.MySQLConnection;
 
 import java.nio.charset.StandardCharsets;
@@ -27,7 +29,7 @@ public class UsuarioDao {
             pstm.setInt(1, id);
             rs = pstm.executeQuery();
             if (rs.next()) {
-                usuario.setId(rs.getInt("id"));
+                usuario.setId(String.valueOf(rs.getInt("id")));
                 usuario.setNombre(rs.getString("nombre"));
                 usuario.setaPaterno(rs.getString("aPaterno"));
                 usuario.setaMaterno(rs.getString("aMaterno"));
@@ -55,7 +57,7 @@ public class UsuarioDao {
             rs = pstm.executeQuery();
             while(rs.next()){
                 UsuarioBean usuario = new UsuarioBean();
-                usuario.setId(rs.getInt("id"));
+                usuario.setId(encrypt("HelloUnhappyReoN","HelloUnhappyReoN",String.valueOf(rs.getInt("id"))));
                 usuario.setNombre(rs.getString("nombre"));
                 usuario.setaPaterno(rs.getString("aPaterno"));
                 usuario.setaMaterno(rs.getString("aMaterno"));
@@ -73,7 +75,7 @@ public class UsuarioDao {
         return usuarios != null && resBitacora ? usuarios : null;
     }
 
-    public static boolean actualizarUsuario(UsuarioBean usuario) {
+    public static boolean actualizarUsuario(UsuarioBean usuario, String id) {
         String sqlQuery = "UPDATE usuarios SET nombre = ?, aPaterno = ?, aMaterno = ?, correo = ?, telefono = ?, edad = ? WHERE id = ?";
         try {
             connection = new MySQLConnection();
@@ -85,9 +87,9 @@ public class UsuarioDao {
             pstm.setString(4, usuario.getCorreo());
             pstm.setString(5, usuario.getTelefono());
             pstm.setInt(6, usuario.getEdad());
-            pstm.setInt(7, usuario.getId());
+            pstm.setInt(7, Integer.parseInt(usuario.getId()));
             int res = pstm.executeUpdate();
-            boolean resBitacora = addBitacora(usuario.getId(), "PUT");
+            boolean resBitacora = addBitacora(Integer.parseInt(id), "PUT");
             return res > 0 && resBitacora;
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
@@ -97,7 +99,25 @@ public class UsuarioDao {
         return false;
     }
 
-    public String encrypt(String llave, String iv, String texto) throws Exception {
+    public static boolean eliminarUsuario(int id, String idUser) {
+        String sqlQuery = "DELETE FROM usuarios WHERE id = ?";
+        try {
+            connection = new MySQLConnection();
+            con = connection.getConnection();
+            pstm = con.prepareStatement(sqlQuery);
+            pstm.setInt(1, id);
+            int res = pstm.executeUpdate();
+            boolean resBitacora = addBitacora(Integer.parseInt(idUser), "DELETE");
+            return res > 0 && resBitacora;  // Retorna true si la eliminación fue exitosa
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            closeConnection();
+        }
+        return false;  // Retorna false si hubo un error
+    }
+
+    public static String encrypt(String llave, String iv, String texto) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         SecretKeySpec secretKeySpec = new SecretKeySpec(llave.getBytes(), "AES");
         IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes());
@@ -143,22 +163,5 @@ public class UsuarioDao {
             closeConnection();
         }
         return false;
-    }
-    public static boolean eliminarUsuario(int id) {
-        String sqlQuery = "DELETE FROM usuarios WHERE id = ?";
-        try {
-            connection = new MySQLConnection();
-            con = connection.getConnection();
-            pstm = con.prepareStatement(sqlQuery);
-            pstm.setInt(1, id);
-            int res = pstm.executeUpdate();
-            boolean resBitacora = addBitacora(id, "DELETE");
-            return res > 0 && resBitacora;  // Retorna true si la eliminación fue exitosa
-        } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
-        } finally {
-            closeConnection();
-        }
-        return false;  // Retorna false si hubo un error
     }
 }

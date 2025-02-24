@@ -49,7 +49,6 @@ public class ServletUsuario extends HttpServlet {
                 switch (action) {
                     case "/inicio":
                         req.getRequestDispatcher("/WEB-INF/home.jsp").forward(req, res);
-                        System.out.println("Inicio");
                         break;
                     case "/getUsuario":
                         //Se obtiene el id del usuario a traves de la url
@@ -68,7 +67,7 @@ public class ServletUsuario extends HttpServlet {
                     case "/modificar-usuario":
                         UsuarioBean usuario = new UsuarioBean();
                         usuario = gson.fromJson(requestBody, UsuarioBean.class);
-                        boolean response = UsuarioDao.actualizarUsuario(usuario);
+                        boolean response = UsuarioDao.actualizarUsuario(usuario, dataSession[1]);
                         String resp = response ? "success" : "error";
                         json = gson.toJson(resp);
                         res.getWriter().write(json);
@@ -80,16 +79,11 @@ public class ServletUsuario extends HttpServlet {
                         json = gson.toJson(UsuarioDao.obtenerUsuarios());
                         res.getWriter().write(json);
                         break;
-                    case "ejemplo":
-                        //Lineas de codigo para regresar la respuesta en JSON
-                        json = gson.toJson("respuesta, puede ser un objeto o un mensaje");
-                        res.getWriter().write(json);
-                        break;
                     case "/eliminar-usuario": // Caso para eliminar usuario
                         String idEliminarEncryp = req.getParameter("id").replace(" ", "+");
                         try {
                             String idEliminar = UsuarioDao.decrypt("HelloUnhappyReoN", "HelloUnhappyReoN", idEliminarEncryp);
-                            boolean eliminado = UsuarioDao.eliminarUsuario(Integer.parseInt(idEliminar)); // Método para eliminar usuario
+                            boolean eliminado = UsuarioDao.eliminarUsuario(Integer.parseInt(idEliminar), dataSession[1]); // Método para eliminar usuario
                             String result = eliminado ? "success" : "error";
                             json = gson.toJson(result);
                             res.getWriter().write(json);

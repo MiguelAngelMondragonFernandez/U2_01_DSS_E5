@@ -2,8 +2,8 @@ package mx.edu.utez.model.Usuario;
 
 public class UsuarioBean {
     public String correo,
-    contrasena, aPaterno, aMaterno, nombre, telefono;
-    public int id, edad;
+    contrasena, aPaterno, aMaterno, nombre, telefono, id;
+    public int edad;
 
     public UsuarioBean() {
     }
@@ -66,11 +66,11 @@ public class UsuarioBean {
         this.telefono = telefono;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

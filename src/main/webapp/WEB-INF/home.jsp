@@ -19,7 +19,7 @@
 <body>
 <h1>Hello Unhappy</h1>
 
-<div class="row" id="tabla">
+<div class="row p-5" id="tabla">
     <td class="col-2">Nombre</td>
     <td class="col-2">Apellido Paterno</td>
     <td class="col-2">Apellido Materno</td>
@@ -51,7 +51,7 @@
                     const telefono = usuario.telefono;
                     const edad = usuario.edad;
                     const id = usuario.id;
-                    fila.innerHTML += '<div class="row">'+
+                    fila.innerHTML += '<div class="row p-2">'+
                         '<td class="col-2">'+nombre+'</td>'+
                         '<td class="col-2">'+aPaterno+'</td>'+
                         '<td class="col-2">'+aMaterno+'</td>'+
@@ -59,15 +59,16 @@
                         '<td class="col-2">'+telefono+'</td>'+
                         '<td class="col-2">'+edad+'</td>'+
                         '<td class="col-2">'+
-                        '<a href="editarUsuario.jsp?id='+usuario.id+'" class="btn btn-primary">Editar</a>'+
-                        '<button class="btn btn-danger" onclick="eliminarUsuario('+id+')">Eliminar</button>'+
-                        '</td>'+'<div>';
+                        '<a href="editar-usuario?id='+id+'" class="btn btn-primary">Editar</a>'+
+                        '<button class="btn btn-danger" onclick="eliminarUsuario(\''+id+'\')">Eliminar</button>'+
+                        '</td>'+'</div>';
                 });
             }
         );
     });
 
     function eliminarUsuario(id) {
+        const newId = ""+id;
         // Confirmación de eliminación con SweetAlert
         Swal.fire({
             title: '¿Estás seguro?',
@@ -79,8 +80,9 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Realizamos la solicitud para eliminar el usuario
-                fetch('eliminar-usuario?id=' + id, {
-                    method: 'DELETE', // Enviar la solicitud DELETE
+                fetch('eliminar-usuario?id=' + newId, {
+                    method: 'DELETE' +
+                        '', // Enviar la solicitud DELETE
                     headers: {
                         'Content-Type': 'application/json'
                     }

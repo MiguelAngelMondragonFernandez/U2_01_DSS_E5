@@ -26,7 +26,7 @@ public class LoginDao {
                 //Se asigna el permiso
                 String permisos = id == 1 ? "admin" : "user";
                 //Se asigna la sesion con el permiso
-                session.setAttribute("session", loginBean.mail + "/" + loginBean.pass + "/" + permisos);
+                session.setAttribute("session", loginBean.mail + "/" + id + "/" + permisos);
                 //Se registra en la bitacora
                 boolean res = addBitacora(id, "POST");
                 //Se retorna true si la sesion se asigno correctamente y se hizo el registro en la bitacora
