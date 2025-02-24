@@ -6,6 +6,7 @@ import static java.util.Base64.getDecoder;
 import static java.util.Base64.getEncoder;
 
 import jakarta.servlet.http.HttpSession;
+import mx.edu.utez.model.Bitacora;
 import mx.edu.utez.utils.MySQLConnection;
 
 import java.nio.charset.StandardCharsets;
@@ -39,6 +40,7 @@ public class UsuarioDao {
             }
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
+            addBitacora(id, "GET", "error");
         } finally {
             closeConnection();
         }
@@ -46,8 +48,8 @@ public class UsuarioDao {
 
     }
 
-    public static List<UsuarioBean> obtenerUsuarios(){
-        String sqlQuery = "SELECT * FROM usuarios where id != 1";
+    public static List<UsuarioBean> obtenerUsuarios(String id){
+        String sqlQuery = "SELECT * FROM usuarios where id != 1 and id != 2;";
         List<UsuarioBean> usuarios = new ArrayList<>();
         boolean resBitacora = false;
         try{
@@ -66,13 +68,37 @@ public class UsuarioDao {
                 usuario.setEdad(rs.getInt("edad"));
                 usuarios.add(usuario);
             }
-            resBitacora = addBitacora(1, "GET");
+            resBitacora = addBitacora(Integer.parseInt(id), "GET", "success");
         }catch (Exception e){
             System.out.println("Error: "+e.getMessage());
+            addBitacora(Integer.parseInt(id), "GET", "error");
         } finally {
             closeConnection();
         }
         return usuarios != null && resBitacora ? usuarios : null;
+    }
+
+    public static boolean anadirUsuario(UsuarioBean usuario, String idUser){
+        String sqlQuery = "INSERT INTO usuarios values(null, ?, ?, ?, ?, sha1(?), ?, ?);";
+        try{
+            connection = new MySQLConnection();
+            con = connection.getConnection();
+            pstm = con.prepareStatement(sqlQuery);
+            pstm.setString(1, usuario.getNombre());
+            pstm.setString(2, usuario.getaPaterno());
+            pstm.setString(3, usuario.getaMaterno());
+            pstm.setString(4, usuario.getCorreo());
+            pstm.setString(5, usuario.getContrasena());
+            pstm.setString(6, usuario.getTelefono());
+            pstm.setInt(7, usuario.getEdad());
+            int res = pstm.executeUpdate();
+            boolean resBitacora = addBitacora(Integer.parseInt(idUser), "POST", "success");
+            return res > 0 && resBitacora;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            addBitacora(Integer.parseInt(idUser), "POST", "error");
+        }
+        return false;
     }
 
     public static boolean actualizarUsuario(UsuarioBean usuario, String id) {
@@ -89,10 +115,11 @@ public class UsuarioDao {
             pstm.setInt(6, usuario.getEdad());
             pstm.setInt(7, Integer.parseInt(usuario.getId()));
             int res = pstm.executeUpdate();
-            boolean resBitacora = addBitacora(Integer.parseInt(id), "PUT");
+            boolean resBitacora = addBitacora(Integer.parseInt(id), "PUT", "success");
             return res > 0 && resBitacora;
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
+            addBitacora(Integer.parseInt(id), "PUT", "error");
         } finally {
             closeConnection();
         }
@@ -107,10 +134,11 @@ public class UsuarioDao {
             pstm = con.prepareStatement(sqlQuery);
             pstm.setInt(1, id);
             int res = pstm.executeUpdate();
-            boolean resBitacora = addBitacora(Integer.parseInt(idUser), "DELETE");
+            boolean resBitacora = addBitacora(Integer.parseInt(idUser), "DELETE", "success");
             return res > 0 && resBitacora;  // Retorna true si la eliminación fue exitosa
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
+            addBitacora(Integer.parseInt(idUser), "DELETE", "error");
         } finally {
             closeConnection();
         }
@@ -147,14 +175,15 @@ public class UsuarioDao {
         }
     }
 
-    public static boolean addBitacora(int idUser, String method) {
-        String sqlQuery = "INSERT INTO bitacora values(null, ?, ?, CURRENT_TIMESTAMP());";
+    public static boolean addBitacora(int idUser, String method, String estado) {
+        String sqlQuery = "INSERT INTO bitacora values(null, ?, ?, ?, CURRENT_TIMESTAMP());";
         String descripcion = "Metodo " + method;
         try {
             con = connection.getConnection();
             pstm = con.prepareStatement(sqlQuery);
             pstm.setInt(1, idUser);
             pstm.setString(2, descripcion);
+            pstm.setString(3, estado);
             int res = pstm.executeUpdate();
             return res > 0;
         } catch (SQLException e) {
@@ -163,5 +192,33 @@ public class UsuarioDao {
             closeConnection();
         }
         return false;
+    }
+
+    public static List<Bitacora> obtenerBitacora(int idUser) {
+        List<Bitacora> bitacoras = new ArrayList<>();
+        String sqlQuery = "SELECT * FROM bitacora;";
+        boolean res = false;
+        try{
+            connection = new MySQLConnection();
+            con = connection.getConnection();
+            pstm = con.prepareStatement(sqlQuery);
+            rs = pstm.executeQuery();
+            while(rs.next()){
+                Bitacora bitacora = new Bitacora();
+                bitacora.setId(rs.getInt("idBitacora"));
+                bitacora.setIdUsuario(rs.getInt("idUsuario"));
+                bitacora.setAccion(rs.getString("operacion"));
+                bitacora.setFecha(rs.getString("fecha_realizacion"));
+                bitacora.setEstado(rs.getString("estado_operacion"));
+                bitacoras.add(bitacora);
+            }
+            res = addBitacora(idUser, "GET", "success");
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage());
+           res = addBitacora(idUser, "GET", "error");
+        } finally {
+            closeConnection();
+        }
+        return res && !bitacoras.isEmpty() ? bitacoras : null;
     }
 }

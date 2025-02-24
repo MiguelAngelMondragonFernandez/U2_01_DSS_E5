@@ -1,75 +1,86 @@
-<%@ page import="mx.edu.utez.model.Usuario.UsuarioDao" %><%--
-  Created by IntelliJ IDEA.
-  User: mickV
-  Date: 21/02/2025
-  Time: 11:01 p. m.
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<!DOCTYPE html>
+<<html lang="es">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Title</title>
+
 </head>
 <body>
-<h1>Hello Unhappy</h1>
-
-<div class="row p-5" id="tabla">
-    <td class="col-2">Nombre</td>
-    <td class="col-2">Apellido Paterno</td>
-    <td class="col-2">Apellido Materno</td>
-    <td class="col-2">Correo</td>
-    <td class="col-2">Telefono</td>
-    <td class="col-2">Edad</td>
-    <td class="col-2">Acciones</td>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Lista de Usuarios</h2>
+    <button class="btn btn-dark mb-3" onclick="anadirUsuario()"> Añadir usuario</button>
+    <button class="btn btn-secondary mb-3" onclick="verBitacora()"> Ver Bitacora</button>
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido Paterno</th>
+            <th>Apellido Materno</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Edad</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody id="usuariosTableBody">
+        <!-- Usuarios cargados dinámicamente -->
+        </tbody>
+    </table>
 </div>
 
-
 <script>
-    document.addEventListener('DOMContentLoaded', async ()=>{
-        await fetch('getUsuarios',  {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(
-            response => response.json()
-        ).then(
-            data => {
-                console.log(data);
-                data.forEach((usuario) => {
-                    const fila = document.getElementById('tabla');
-                    const nombre = usuario.nombre;
-                    const aPaterno = usuario.aPaterno;
-                    const aMaterno = usuario.aMaterno;
-                    const correo = usuario.correo;
-                    const telefono = usuario.telefono;
-                    const edad = usuario.edad;
-                    const id = usuario.id;
-                    fila.innerHTML += '<div class="row p-2">'+
-                        '<td class="col-2">'+nombre+'</td>'+
-                        '<td class="col-2">'+aPaterno+'</td>'+
-                        '<td class="col-2">'+aMaterno+'</td>'+
-                        '<td class="col-2">'+correo+'</td>'+
-                        '<td class="col-2">'+telefono+'</td>'+
-                        '<td class="col-2">'+edad+'</td>'+
-                        '<td class="col-2">'+
-                        '<a href="editar-usuario?id='+id+'" class="btn btn-primary">Editar</a>'+
-                        '<button class="btn btn-danger" onclick="eliminarUsuario(\''+id+'\')">Eliminar</button>'+
-                        '</td>'+'</div>';
-                });
-            }
-        );
-    });
+    // Función para obtener y cargar usuarios en la tabla
+    function anadirUsuario() {
+        window.location.href = 'agregar-usuario';
+    }
+    function verBitacora() {
+        window.location.href = 'bitacora';
+    }
+    async function cargarUsuarios() {
+        try {
+            const response = await fetch('getUsuarios', { method: 'GET' });
+            const usuarios = await response.json();
+            console.log(usuarios);
 
-    function eliminarUsuario(id) {
-        const newId = ""+id;
-        // Confirmación de eliminación con SweetAlert
+            const tableBody = document.getElementById('usuariosTableBody');
+            tableBody.innerHTML = '';
+
+            usuarios.forEach(usuario => {
+                const fila = document.createElement('tr');
+                fila.innerHTML =
+                    '<td>' + usuario.nombre + '</td>' +
+                    '<td>' + usuario.aPaterno + '</td>' +
+                    '<td>' + usuario.aMaterno + '</td>' +
+                    '<td>' + usuario.correo + '</td>' +
+                    '<td>' + usuario.telefono + '</td>' +
+                    '<td>' + usuario.edad + '</td>' +
+                    ' <td><a href="editar-usuario?id=' + usuario.id + '" class="btn btn-dark btn-sm ml-2">Editar</a>' +
+                    '<button class="btn btn-danger btn-sm" onclick="eliminarUsuario(\'' + usuario.id + '\')">Eliminar</button>' +
+                    '</td>'
+                ;
+                tableBody.appendChild(fila);
+            });
+
+        } catch (error) {
+            console.error('Error al cargar los usuarios:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo cargar la lista de usuarios.',
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+
+    // Función para eliminar usuario con confirmación
+    async function eliminarUsuario(id, button) {
         Swal.fire({
             title: '¿Estás seguro?',
             text: "¡No podrás recuperar este usuario!",
@@ -77,42 +88,59 @@
             showCancelButton: true,
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                // Realizamos la solicitud para eliminar el usuario
-                fetch('eliminar-usuario?id=' + newId, {
-                    method: 'DELETE' +
-                        '', // Enviar la solicitud DELETE
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        Swal.fire(
-                            'Eliminado!',
-                            'El usuario ha sido eliminado.',
-                            'success'
-                        ).then(() => {
-                            // Recargar la página o actualizar la lista de usuarios
-                            location.reload(); // Recarga la página para mostrar los cambios
+                Swal.fire({
+                    title: 'Eliminando usuario',
+                    html: 'Por favor espere',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    },
+                });
+                try {
+                    const response = await fetch('eliminar-usuario?id='+id, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const resultado = await response.json();
+
+                    if (resultado === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Usuario eliminado',
+                            text: 'El usuario se ha eliminado correctamente',
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            cargarUsuarios();
                         });
                     } else {
-                        Swal.fire(
-                            'Error!',
-                            'Hubo un problema al eliminar al usuario.',
-                            'error'
-                        );
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Hubo un problema al eliminar al usuario.',
+                            confirmButtonText: 'OK'
+                        });
                     }
-                }).catch(error => {
-                    Swal.fire(
-                        'Error!',
-                        'Hubo un error en la conexión.',
-                        'error'
-                    );
-                });
+
+                } catch (error) {
+                    console.error('Error al eliminar usuario:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un problema al eliminar al usuario.',
+                        confirmButtonText: 'OK'
+                    });
+                }
             }
         });
     }
+
+    // Cargar usuarios al cargar la página
+    document.addEventListener('DOMContentLoaded', cargarUsuarios);
 </script>
+
 </body>
 </html>

@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Acceso Denegado</title>
-    <!-- Agregar Bootstrap para diseño mejorado -->
+    <title>Error en el servidor</title>
+
+    <!-- Agregar Bootstrap para mejorar diseño -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Agregar FontAwesome para íconos -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -38,8 +40,8 @@
 <body>
 
 <div class="error-container">
-    <h1 class="display-4 text-danger"><i class="fas fa-ban"></i> Acceso Denegado</h1>
-    <p class="lead">No tienes permisos para acceder a esta página.</p>
+    <h1 class="display-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Error en el servidor</h1>
+    <p class="lead">Ha ocurrido un problema interno. Por favor, intenta de nuevo más tarde.</p>
 
     <%
         String userPermisos = (String) session.getAttribute("session");

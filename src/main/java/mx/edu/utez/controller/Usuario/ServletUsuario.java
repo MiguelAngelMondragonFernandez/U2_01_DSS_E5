@@ -16,7 +16,11 @@ import java.io.IOException;
         "/getUsuario",
         "/editar-usuario",
         "/modificar-usuario",
-        "/eliminar-usuario"
+        "/eliminar-usuario",
+        "/agregar-usuario",
+        "/anadir-usuario",
+        "/bitacora",
+        "/getBitacora",
 })
 public class ServletUsuario extends HttpServlet {
 
@@ -50,6 +54,19 @@ public class ServletUsuario extends HttpServlet {
                     case "/inicio":
                         req.getRequestDispatcher("/WEB-INF/home.jsp").forward(req, res);
                         break;
+                    case "/editar-usuario":
+                        req.getRequestDispatcher("/WEB-INF/editarUsuario.jsp").forward(req, res);
+                        break;
+                        case "/agregar-usuario":
+                        req.getRequestDispatcher("/WEB-INF/agregarUsuario.jsp").forward(req, res);
+                        break;
+                    case "/bitacora":
+                        req.getRequestDispatcher("/WEB-INF/bitacora.jsp").forward(req, res);
+                        break;
+                    case "/getBitacora":
+                        json = gson.toJson(UsuarioDao.obtenerBitacora(Integer.parseInt(dataSession[1])));
+                        res.getWriter().write(json);
+                        break;
                     case "/getUsuario":
                         //Se obtiene el id del usuario a traves de la url
                         String idEncryp = req.getParameter("id").replace(" ","+");
@@ -64,19 +81,24 @@ public class ServletUsuario extends HttpServlet {
                             System.out.println("Error: "+e.getMessage());
                         }
                         break;
+                    case "/getUsuarios":
+                        json = gson.toJson(UsuarioDao.obtenerUsuarios(dataSession[1]));
+                        res.getWriter().write(json);
+                        break;
+                        case "/anadir-usuario":
+                        UsuarioBean usuarioBean = new UsuarioBean();
+                        usuarioBean = gson.fromJson(requestBody, UsuarioBean.class);
+                        boolean respuesta = UsuarioDao.anadirUsuario(usuarioBean, dataSession[1]);
+                        json = respuesta ? "success" : "error";
+                        json = gson.toJson(json);
+                        res.getWriter().write(json);
+                            break;
                     case "/modificar-usuario":
                         UsuarioBean usuario = new UsuarioBean();
                         usuario = gson.fromJson(requestBody, UsuarioBean.class);
                         boolean response = UsuarioDao.actualizarUsuario(usuario, dataSession[1]);
                         String resp = response ? "success" : "error";
                         json = gson.toJson(resp);
-                        res.getWriter().write(json);
-                        break;
-                    case "/editar-usuario":
-                        req.getRequestDispatcher("/WEB-INF/editarUsuario.jsp").forward(req, res);
-                        break;
-                        case "/getUsuarios":
-                        json = gson.toJson(UsuarioDao.obtenerUsuarios());
                         res.getWriter().write(json);
                         break;
                     case "/eliminar-usuario": // Caso para eliminar usuario
@@ -114,6 +136,12 @@ public class ServletUsuario extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         proccessRequest(request, response);
     }
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        proccessRequest(request, response);
+    }
+
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         proccessRequest(request, response);

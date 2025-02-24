@@ -28,26 +28,27 @@ public class LoginDao {
                 //Se asigna la sesion con el permiso
                 session.setAttribute("session", loginBean.mail + "/" + id + "/" + permisos);
                 //Se registra en la bitacora
-                boolean res = addBitacora(id, "POST");
+                boolean res = addBitacora(id, "POST", "success");
                 //Se retorna true si la sesion se asigno correctamente y se hizo el registro en la bitacora
                 return session.getAttribute("session") != null && res;
             }
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            addBitacora(2, "POST", "error");
         } finally {
             closeConnection();
         }
         return false;
     }
 
-    public static boolean addBitacora(int idUser, String method) {
-        String sqlQuery = "INSERT INTO bitacora values(null, ?, ?, CURRENT_TIMESTAMP());";
+    public static boolean addBitacora(int idUser, String method, String estado) {
+        String sqlQuery = "INSERT INTO bitacora values(null, ?, ?, ?, CURRENT_TIMESTAMP());";
         String descripcion = "Metodo " + method;
         try {
             con = connection.getConnection();
             pstm = con.prepareStatement(sqlQuery);
             pstm.setInt(1, idUser);
             pstm.setString(2, descripcion);
+            pstm.setString(3, estado);
             int res = pstm.executeUpdate();
             return res > 0;
         } catch (SQLException e) {

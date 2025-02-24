@@ -46,7 +46,7 @@
             <input type="number" name="edad" class="form-control" required min="1" max="100">
         </div>
 
-        <button type="submit" class="btn btn-primary">Actualizar</button>
+        <button type="submit" class="btn btn-dark">Actualizar</button>
     </form>
 </div>
 
@@ -92,7 +92,7 @@
             edad: form.get('edad')
         };
         await fetch("modificar-usuario", {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },

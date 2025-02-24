@@ -1,31 +1,62 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de sesión</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS y SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 30px;
+            opacity: 0.7;
+        }
+
+        .toggle-password:hover {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-<form id="loginForm" class="d-flex justify-content-center align-items-center" style="height: 100vh">
-    <div>
-        <h1>Bienvenido</h1>
-        <div class="mt-3">
-            <h6>Correo electronico</h6>
-            <input id="mail" name="mail" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" placeholder="Ingresa tu correo electronico" required/>
-        </div>
-        <div class="mt-3">
-            <h6>Contraseña</h6>
-            <input id="pass" name="pass" type="password" placeholder="Ingresa tu contraseña" required/>
-            <img onclick="pruebaShowPassword()" src="assets/download.png" class="p-1" style="width: 35px;"/>
-        </div>
-        <button class="btn btn-primary mt-2" type="submit">Iniciar sesion</button>
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="p-4 shadow-lg rounded bg-light" style="width: 350px;">
+        <h2 class="text-center mb-4">Bienvenido</h2>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="mail" class="form-label">Correo electrónico</label>
+                <input type="email" id="mail" name="mail" class="form-control" placeholder="Ingresa tu correo" required>
+            </div>
+
+            <div class="mb-3 password-container">
+                <label for="pass" class="form-label">Contraseña</label>
+                <input type="password" id="pass" name="pass" class="form-control" placeholder="Ingresa tu contraseña" required autocomplete="off">
+                <img onclick="pruebaShowPassword()" src="assets/download.png" class="toggle-password">
+            </div>
+
+            <button class="btn btn-dark w-100 mt-2" type="submit">Iniciar sesión</button>
+        </form>
     </div>
-</form>
+</div>
+
+
 <script>
     const pruebaShowPassword = ()=>{
         const passInput = document.getElementById('pass');
@@ -38,7 +69,7 @@
             html: 'Por favor espere',
             showConfirmButton: false,
             allowOutsideClick: false,
-            onBeforeOpen: () => {
+            didOpen: () => {
                 Swal.showLoading()
             },
         });
@@ -84,5 +115,6 @@
         }
     });
 </script>
+
 </body>
 </html>
