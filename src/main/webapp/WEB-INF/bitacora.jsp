@@ -30,32 +30,36 @@
         <!-- Usuarios cargados dinámicamente -->
         </tbody>
     </table>
+
+    <!-- Controles de paginación -->
+    <div class="d-flex justify-content-between align-items-center">
+        <span id="paginationInfo"></span>
+        <nav>
+            <ul class="pagination">
+                <li class="page-item">
+                    <button class="page-link" onclick="cambiarPagina(-1)" id="prevBtn" disabled>Anterior</button>
+                </li>
+                <li class="page-item">
+                    <button class="page-link" onclick="cambiarPagina(1)" id="nextBtn">Siguiente</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
 
 <script>
-    // Función para obtener y cargar usuarios en la tabla
+    let registros = [];
+    let paginaActual = 1;
+    const registrosPorPagina = 5;
+
     async function cargarRegistros() {
         try {
             const response = await fetch('getBitacora', { method: 'GET' });
-            const registros = await response.json();
-
-            const tableBody = document.getElementById('usuariosTableBody');
-            tableBody.innerHTML = '';
-
-            registros.forEach(registros => {
-                const fila = document.createElement('tr');
-                fila.innerHTML =
-                    '<td>' + registros.id + '</td>' +
-                    '<td>' + registros.idUsuario + '</td>' +
-                    '<td>' + registros.accion + '</td>' +
-                    '<td>' + registros.estado + '</td>' +
-                    '<td>' + registros.fecha + '</td>'
-                ;
-                tableBody.appendChild(fila);
-            });
-
+            registros = await response.json();
+            paginaActual = 1;
+            mostrarPagina();
         } catch (error) {
-            console.error('Error al cargar los usuarios:', error);
+            console.error('Error al cargar los registros:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -65,9 +69,42 @@
         }
     }
 
-    // Función para eliminar usuario con confirmación
+    function mostrarPagina() {
+        const tableBody = document.getElementById('usuariosTableBody');
+        tableBody.innerHTML = '';
 
-    // Cargar usuarios al cargar la página
+        const inicio = (paginaActual - 1) * registrosPorPagina;
+        const fin = inicio + registrosPorPagina;
+        const registrosPagina = registros.slice(inicio, fin);
+
+        registros.forEach(registros => {
+            const fila = document.createElement('tr');
+            fila.innerHTML =
+                '<td>' + registros.id + '</td>' +
+                '<td>' + registros.idUsuario + '</td>' +
+                '<td>' + registros.accion + '</td>' +
+                '<td>' + registros.estado + '</td>' +
+                '<td>' + registros.fecha + '</td>'
+            ;
+            tableBody.appendChild(fila);
+        });
+
+        actualizarPaginacion();
+    }
+
+    function cambiarPagina(direccion) {
+        paginaActual += direccion;
+        mostrarPagina();
+    }
+
+    function actualizarPaginacion() {
+        document.getElementById('prevBtn').disabled = paginaActual === 1;
+        document.getElementById('nextBtn').disabled = paginaActual * registrosPorPagina >= registros.length;
+
+        document.getElementById('paginationInfo').textContent =
+            `Página ${paginaActual} de ${Math.ceil(registros.length / registrosPorPagina)}`;
+    }
+
     document.addEventListener('DOMContentLoaded', cargarRegistros);
 </script>
 

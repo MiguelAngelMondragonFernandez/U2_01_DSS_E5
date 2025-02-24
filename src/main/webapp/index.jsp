@@ -58,9 +58,31 @@
 
 
 <script>
+
+    document.getElementById('mail').addEventListener('input', ()=>{
+        const mailInput = document.getElementById('mail');
+        if(mailInput.value.trim() === "" && mailInput.test('\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b')){
+            mailInput.classList.add('is-invalid');
+        } else {
+            mailInput.classList.remove('is-invalid');
+        }
+    });
+
+    document.getElementById('pass').addEventListener('input', ()=>{
+        const passInput = document.getElementById('pass');
+     if (!/^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{6,}$/.test(passInput.value) || /[{}[\]<>'"`]/.test(passInput.value)) {
+         passInput.classList.add('is-invalid');
+     } else {
+         passInput.classList.remove('is-invalid');
+     }
+    });
     const pruebaShowPassword = ()=>{
         const passInput = document.getElementById('pass');
-        passInput.type = passInput.type === 'password' ? 'text' : 'password';
+        if(passInput.type === 'password'){
+            passInput.type = 'text';
+        } else {
+            passInput.type = 'password';
+        }
     }
     // Evento para el formulario de inicio de sesion
     document.getElementById('loginForm').addEventListener('submit', async (e)=> {

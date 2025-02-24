@@ -89,7 +89,7 @@
             if (this.name === "correo") {
                 this.classList.toggle("is-invalid", !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(valor));
             } else if (this.name === "contrasena") {
-                this.classList.toggle("is-invalid", valor.length < 6);
+                this.classList.toggle("is-invalid", valor.length < 6 || !/[A-Z]/.test(valor));
             } else if (this.name === "telefono") {
                 this.classList.toggle("is-invalid", !/^\d{10}$/.test(valor));
             } else if (this.name === "edad") {
