@@ -23,40 +23,70 @@
 
         <div class="mb-3">
             <label>Apellido Paterno:</label>
-            <input type="text" name="aPaterno" class="form-control" value="" required>
+            <input type="text" name="aPaterno" id="aPaterno" class="form-control" required>
         </div>
 
         <div class="mb-3">
             <label>Apellido Materno:</label>
-            <input type="text" name="aMaterno" class="form-control" required>
+            <input type="text" name="aMaterno" id="aMaterno" class="form-control" required>
         </div>
 
         <div class="mb-3">
             <label>Correo:</label>
-            <input type="email" name="correo" class="form-control" required>
+            <input type="email" name="correo" id="correo" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label>Telefono:</label>
-            <input type="text" name="telefono" class="form-control" required maxlength="10">
+            <label>Teléfono:</label>
+            <input type="text" name="telefono" id="telefono" class="form-control" required maxlength="10">
         </div>
 
         <div class="mb-3">
             <label>Edad:</label>
-            <input type="number" name="edad" class="form-control" required min="1" max="100">
+            <input type="number" name="edad" id="edad" class="form-control" required min="1" max="100">
         </div>
 
-        <button type="submit" class="btn btn-dark">Actualizar</button>
+        <button type="submit" class="btn btn-dark" disabled>Actualizar</button>
     </form>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', async function (){
+    function validarFormulario() {
+        const form = document.getElementById('formEdit');
+        const inputs = form.querySelectorAll('input');
+        let formularioValido = true;
+
+        inputs.forEach(input => {
+            if (input.required && (input.value.trim() === "" || input.classList.contains('is-invalid'))) {
+                formularioValido = false;
+            }
+        });
+
+        document.querySelector('#formEdit button[type="submit"]').disabled = !formularioValido;
+    }
+
+    document.querySelectorAll('#formEdit input').forEach(input => {
+        input.addEventListener('input', function () {
+            const valor = this.value;
+
+            if (this.name === 'correo') {
+                this.classList.toggle('is-invalid', !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(valor));
+            } else if (this.name === 'telefono') {
+                this.classList.toggle('is-invalid', !/^\d{10}$/.test(valor));
+            } else if (this.name === 'edad') {
+                this.classList.toggle('is-invalid', valor < 1 || valor > 100);
+            } else {
+                this.classList.toggle('is-invalid', /[{}$"',.<>[\]\\/ %&|@!?=+\-_*\^~`]/.test(valor));
+            }
+
+            validarFormulario();
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', async function () {
         await fetch("getUsuario?id=<%=request.getParameter("id")%>", {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         })
             .then(response => response.json())
             .then(data => {
@@ -67,20 +97,23 @@
                 document.getElementsByName("telefono")[0].value = data.telefono;
                 document.getElementsByName("edad")[0].value = data.edad;
                 document.getElementsByName("id")[0].value = data.id;
-            })
-    })
 
-    document.getElementById('formEdit').addEventListener('submit', async function (event){
+                validarFormulario(); // Verifica si el formulario ya es válido al cargar
+            })
+    });
+
+    document.getElementById('formEdit').addEventListener('submit', async function (event) {
         event.preventDefault();
         Swal.fire({
             title: 'Actualizando usuario',
             html: 'Por favor espere',
             showConfirmButton: false,
             allowOutsideClick: false,
-            onBeforeOpen: () => {
-                Swal.showLoading()
-            },
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
+
         const form = new FormData(event.target);
         const data = {
             id: form.get('id'),
@@ -91,35 +124,34 @@
             telefono: form.get('telefono'),
             edad: form.get('edad')
         };
+
         await fetch("modificar-usuario", {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         })
             .then(response => response.json())
             .then(data => {
-                if(data === "success"){
+                if (data === "success") {
                     Swal.fire({
                         icon: 'success',
                         title: 'Usuario actualizado',
                         showConfirmButton: false,
                         timer: 1500
-                    })
+                    });
                     setTimeout(() => {
                         window.location.href = "inicio";
-                    }, 1500)
-                }else{
+                    }, 1500);
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error al actualizar',
                         showConfirmButton: false,
                         timer: 1500
-                    })
+                    });
                 }
-            })
-    })
+            });
+    });
 </script>
 </body>
 </html>
