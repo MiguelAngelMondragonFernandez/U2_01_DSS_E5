@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @WebServlet(name = "ServletUsuario", urlPatterns= {
         "/inicio",
+        "/getUsuarios",
         "/getUsuario",
         "/editar-usuario",
         "/modificar-usuario",
@@ -67,9 +68,16 @@ public class ServletUsuario extends HttpServlet {
                         UsuarioBean usuario = new UsuarioBean();
                         usuario = gson.fromJson(requestBody, UsuarioBean.class);
                         boolean response = UsuarioDao.actualizarUsuario(usuario);
+                        String resp = response ? "success" : "error";
+                        json = gson.toJson(resp);
+                        res.getWriter().write(json);
                         break;
                     case "/editar-usuario":
                         req.getRequestDispatcher("/WEB-INF/editarUsuario.jsp").forward(req, res);
+                        break;
+                        case "/getUsuarios":
+                        json = gson.toJson(UsuarioDao.obtenerUsuarios());
+                        res.getWriter().write(json);
                         break;
                     case "ejemplo":
                         //Lineas de codigo para regresar la respuesta en JSON

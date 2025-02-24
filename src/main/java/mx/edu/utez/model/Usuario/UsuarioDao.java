@@ -8,7 +8,9 @@ import mx.edu.utez.utils.MySQLConnection;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class UsuarioDao {
     public static MySQLConnection connection;
@@ -42,6 +44,35 @@ public class UsuarioDao {
 
     }
 
+    public static List<UsuarioBean> obtenerUsuarios(){
+        String sqlQuery = "SELECT * FROM usuarios where id != 1";
+        List<UsuarioBean> usuarios = new ArrayList<>();
+        boolean resBitacora = false;
+        try{
+            connection = new MySQLConnection();
+            con = connection.getConnection();
+            pstm = con.prepareStatement(sqlQuery);
+            rs = pstm.executeQuery();
+            while(rs.next()){
+                UsuarioBean usuario = new UsuarioBean();
+                usuario.setId(rs.getInt("id"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setaPaterno(rs.getString("aPaterno"));
+                usuario.setaMaterno(rs.getString("aMaterno"));
+                usuario.setCorreo(rs.getString("correo"));
+                usuario.setTelefono(rs.getString("telefono"));
+                usuario.setEdad(rs.getInt("edad"));
+                usuarios.add(usuario);
+            }
+            resBitacora = addBitacora(1, "GET");
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage());
+        } finally {
+            closeConnection();
+        }
+        return usuarios != null && resBitacora ? usuarios : null;
+    }
+
     public static boolean actualizarUsuario(UsuarioBean usuario) {
         String sqlQuery = "UPDATE usuarios SET nombre = ?, aPaterno = ?, aMaterno = ?, correo = ?, telefono = ?, edad = ? WHERE id = ?";
         try {
@@ -55,8 +86,8 @@ public class UsuarioDao {
             pstm.setString(5, usuario.getTelefono());
             pstm.setInt(6, usuario.getEdad());
             pstm.setInt(7, usuario.getId());
-            boolean resBitacora = addBitacora(usuario.getId(), "PUT");
             int res = pstm.executeUpdate();
+            boolean resBitacora = addBitacora(usuario.getId(), "PUT");
             return res > 0 && resBitacora;
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());

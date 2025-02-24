@@ -13,7 +13,7 @@
 <body>
 <div class="container mt-5">
     <h2>Editar Usuario</h2>
-    <form action="editar-usuario" method="post">
+    <form id="formEdit">
         <input type="hidden" name="id" value="">
 
         <div class="mb-3">
@@ -70,8 +70,17 @@
             })
     })
 
-    document.addEventListener('submit', async function (event){
+    document.getElementById('formEdit').addEventListener('submit', async function (event){
         event.preventDefault();
+        Swal.fire({
+            title: 'Actualizando usuario',
+            html: 'Por favor espere',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
         const form = new FormData(event.target);
         const data = {
             id: form.get('id'),
@@ -82,13 +91,16 @@
             telefono: form.get('telefono'),
             edad: form.get('edad')
         };
-        await fetch("editar-usuario", {
+        await fetch("modificar-usuario", {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(data),
         })
             .then(response => response.json())
             .then(data => {
-                if(data.status === 200){
+                if(data === "success"){
                     Swal.fire({
                         icon: 'success',
                         title: 'Usuario actualizado',
@@ -96,7 +108,7 @@
                         timer: 1500
                     })
                     setTimeout(() => {
-                        window.location.href = "home";
+                        window.location.href = "inicio";
                     }, 1500)
                 }else{
                     Swal.fire({
