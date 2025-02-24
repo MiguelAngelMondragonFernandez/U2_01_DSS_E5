@@ -4,12 +4,17 @@ import com.google.gson.Gson;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import mx.edu.utez.model.Usuario.UsuarioBean;
+import mx.edu.utez.model.Usuario.UsuarioDao;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
 @WebServlet(name = "ServletUsuario", urlPatterns= {
-        "/inicio"
+        "/inicio",
+        "/getUsuario",
+        "/editar-usuario",
+        "/modificar-usuario",
 })
 public class ServletUsuario extends HttpServlet {
 
@@ -43,6 +48,28 @@ public class ServletUsuario extends HttpServlet {
                     case "/inicio":
                         req.getRequestDispatcher("/WEB-INF/home.jsp").forward(req, res);
                         System.out.println("Inicio");
+                        break;
+                    case "/getUsuario":
+                        //Se obtiene el id del usuario a traves de la url
+                        String idEncryp = req.getParameter("id").replace(" ","+");
+                        try{
+                        String id = UsuarioDao.decrypt("HelloUnhappyReoN","HelloUnhappyReoN",idEncryp);
+                            UsuarioBean usuario = new UsuarioBean();
+                            usuario = UsuarioDao.obtenerUsuarioPorId(Integer.parseInt(id));
+                            json = gson.toJson(usuario);
+                            System.out.println(json);
+                            res.getWriter().write(json);
+                        }catch (Exception e){
+                            System.out.println("Error: "+e.getMessage());
+                        }
+                        break;
+                    case "/modificar-usuario":
+                        UsuarioBean usuario = new UsuarioBean();
+                        usuario = gson.fromJson(requestBody, UsuarioBean.class);
+                        boolean response = UsuarioDao.actualizarUsuario(usuario);
+                        break;
+                    case "/editar-usuario":
+                        req.getRequestDispatcher("/WEB-INF/editarUsuario.jsp").forward(req, res);
                         break;
                     case "ejemplo":
                         //Lineas de codigo para regresar la respuesta en JSON
