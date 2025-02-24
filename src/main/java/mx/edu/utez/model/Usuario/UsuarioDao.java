@@ -144,4 +144,21 @@ public class UsuarioDao {
         }
         return false;
     }
+    public static boolean eliminarUsuario(int id) {
+        String sqlQuery = "DELETE FROM usuarios WHERE id = ?";
+        try {
+            connection = new MySQLConnection();
+            con = connection.getConnection();
+            pstm = con.prepareStatement(sqlQuery);
+            pstm.setInt(1, id);
+            int res = pstm.executeUpdate();
+            boolean resBitacora = addBitacora(id, "DELETE");
+            return res > 0 && resBitacora;  // Retorna true si la eliminación fue exitosa
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            closeConnection();
+        }
+        return false;  // Retorna false si hubo un error
+    }
 }

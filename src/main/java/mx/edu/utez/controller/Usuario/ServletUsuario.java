@@ -16,6 +16,7 @@ import java.io.IOException;
         "/getUsuario",
         "/editar-usuario",
         "/modificar-usuario",
+        "/eliminar-usuario"
 })
 public class ServletUsuario extends HttpServlet {
 
@@ -84,7 +85,21 @@ public class ServletUsuario extends HttpServlet {
                         json = gson.toJson("respuesta, puede ser un objeto o un mensaje");
                         res.getWriter().write(json);
                         break;
+                    case "/eliminar-usuario": // Caso para eliminar usuario
+                        String idEliminarEncryp = req.getParameter("id").replace(" ", "+");
+                        try {
+                            String idEliminar = UsuarioDao.decrypt("HelloUnhappyReoN", "HelloUnhappyReoN", idEliminarEncryp);
+                            boolean eliminado = UsuarioDao.eliminarUsuario(Integer.parseInt(idEliminar)); // Método para eliminar usuario
+                            String result = eliminado ? "success" : "error";
+                            json = gson.toJson(result);
+                            res.getWriter().write(json);
+                        } catch (Exception e) {
+                            json = gson.toJson("Error: " + e.getMessage());
+                            res.getWriter().write(json);
+                        }
+                        break;
                 }
+
             } else {
                 //Si el usuario no es admin se redirecciona a la pagina de error 403
                 res.sendRedirect(req.getContextPath()+"/withoutSession");
@@ -103,6 +118,10 @@ public class ServletUsuario extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        proccessRequest(request, response);
+    }
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         proccessRequest(request, response);
     }
 }

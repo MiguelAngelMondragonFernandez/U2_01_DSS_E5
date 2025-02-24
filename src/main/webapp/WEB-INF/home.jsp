@@ -66,6 +66,51 @@
             }
         );
     });
+
+    function eliminarUsuario(id) {
+        // Confirmación de eliminación con SweetAlert
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás recuperar este usuario!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Realizamos la solicitud para eliminar el usuario
+                fetch('eliminar-usuario?id=' + id, {
+                    method: 'DELETE', // Enviar la solicitud DELETE
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        Swal.fire(
+                            'Eliminado!',
+                            'El usuario ha sido eliminado.',
+                            'success'
+                        ).then(() => {
+                            // Recargar la página o actualizar la lista de usuarios
+                            location.reload(); // Recarga la página para mostrar los cambios
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Hubo un problema al eliminar al usuario.',
+                            'error'
+                        );
+                    }
+                }).catch(error => {
+                    Swal.fire(
+                        'Error!',
+                        'Hubo un error en la conexión.',
+                        'error'
+                    );
+                });
+            }
+        });
+    }
 </script>
 </body>
 </html>
