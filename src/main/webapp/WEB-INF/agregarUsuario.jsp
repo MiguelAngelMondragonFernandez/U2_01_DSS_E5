@@ -63,7 +63,8 @@
             <div class="invalid-feedback">La edad debe ser 18 o mayor.</div>
         </div>
 
-        <button type="submit" class="btn btn-dark mt-3" disabled>Registrar Usuario</button>
+        <button type="submit" class="btn btn-secondary mt-3" disabled>Registrar Usuario</button>
+        <button class="btn btn-dark mb-3" onclick="regresar()">Regresar</button>
     </form>
 </div>
 
@@ -80,6 +81,10 @@
         });
 
         document.querySelector("#formUsuario button").disabled = !esValido;
+    }
+
+    function regresar(){
+        window.location.href = 'inicio';
     }
 
     document.querySelectorAll("#formUsuario input").forEach(input => {

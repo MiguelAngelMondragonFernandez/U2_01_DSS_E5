@@ -17,6 +17,7 @@
     <h2 class="text-center mb-4">Lista de Usuarios</h2>
     <button class="btn btn-dark mb-3" onclick="anadirUsuario()"> Añadir usuario</button>
     <button class="btn btn-secondary mb-3" onclick="verBitacora()"> Ver Bitacora</button>
+    <button onclick="logOut()" class="btn btn-danger mb-3">Cerrar sesión</button>
     <table class="table table-bordered text-center">
         <thead class="table-dark">
         <tr>
@@ -136,6 +137,19 @@
                 }
             }
         });
+    }
+
+   async function logOut(){
+        await fetch('signOut',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: null
+            }).then(
+                window.location.href = 'login'
+        )
     }
 
     // Cargar usuarios al cargar la página

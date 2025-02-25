@@ -47,6 +47,7 @@
         </div>
 
         <button type="submit" class="btn btn-dark" disabled>Actualizar</button>
+        <button class="btn btn-secondary mb-3" onclick="regresar()">Regresar</button>
     </form>
 </div>
 
@@ -101,6 +102,9 @@
                 validarFormulario(); // Verifica si el formulario ya es válido al cargar
             })
     });
+    function regresar(){
+        window.location.href = 'inicio';
+    }
 
     document.getElementById('formEdit').addEventListener('submit', async function (event) {
         event.preventDefault();

@@ -43,97 +43,103 @@
             <div class="mb-3">
                 <label for="mail" class="form-label">Correo electrónico</label>
                 <input type="email" id="mail" name="mail" class="form-control" placeholder="Ingresa tu correo" required>
+                <div class="invalid-feedback">Introduce un correo válido.</div>
             </div>
 
             <div class="mb-3 password-container">
                 <label for="pass" class="form-label">Contraseña</label>
                 <input type="password" id="pass" name="pass" class="form-control" placeholder="Ingresa tu contraseña" required autocomplete="off">
-                <img onclick="pruebaShowPassword()" src="assets/download.png" class="toggle-password">
+                <img onclick="toggleShowPassword()" src="assets/download.png" class="toggle-password">
+                <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres, incluir una mayúscula, un número y no contener caracteres especiales.</div>
             </div>
 
-            <button class="btn btn-dark w-100 mt-2" type="submit">Iniciar sesión</button>
+            <button class="btn btn-dark w-100 mt-2" type="submit" disabled>Iniciar sesión</button>
         </form>
     </div>
 </div>
 
-
 <script>
-
-    document.getElementById('mail').addEventListener('input', ()=>{
+    function validarFormulario() {
         const mailInput = document.getElementById('mail');
-        if(mailInput.value.trim() === "" && mailInput.test('\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b')){
-            mailInput.classList.add('is-invalid');
-        } else {
-            mailInput.classList.remove('is-invalid');
-        }
-    });
+        const passInput = document.getElementById('pass');
+        const submitBtn = document.querySelector("#loginForm button");
 
-    document.getElementById('pass').addEventListener('input', ()=>{
-        const passInput = document.getElementById('pass');
-     if (!/^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{6,}$/.test(passInput.value) || /[{}[\]<>'"`]/.test(passInput.value)) {
-         passInput.classList.add('is-invalid');
-     } else {
-         passInput.classList.remove('is-invalid');
-     }
-    });
-    const pruebaShowPassword = ()=>{
-        const passInput = document.getElementById('pass');
-        if(passInput.type === 'password'){
-            passInput.type = 'text';
-        } else {
-            passInput.type = 'password';
-        }
+        let correoValido = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(mailInput.value);
+        let contrasenaValida = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{6,}$/.test(passInput.value) && !/[{}[\]<>'"`]/.test(passInput.value);
+
+        mailInput.classList.toggle('is-invalid', !correoValido);
+        passInput.classList.toggle('is-invalid', !contrasenaValida);
+
+        submitBtn.disabled = !(correoValido && contrasenaValida);
     }
-    // Evento para el formulario de inicio de sesion
-    document.getElementById('loginForm').addEventListener('submit', async (e)=> {
+
+    document.getElementById('mail').addEventListener('input', validarFormulario);
+    document.getElementById('pass').addEventListener('input', validarFormulario);
+
+    function toggleShowPassword() {
+        const passInput = document.getElementById('pass');
+        passInput.type = passInput.type === 'password' ? 'text' : 'password';
+    }
+
+    // Evento para el formulario de inicio de sesión
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
         Swal.fire({
-            title: 'Iniciando sesion',
+            title: 'Iniciando sesión',
             html: 'Por favor espere',
             showConfirmButton: false,
             allowOutsideClick: false,
             didOpen: () => {
-                Swal.showLoading()
+                Swal.showLoading();
             },
         });
-        e.preventDefault();
+
         // Obtenemos los datos del formulario
         const formData = new FormData(e.target);
         const data = {
             mail: formData.get('mail'),
             pass: formData.get('pass')
-        }
-        // Enviamos los datos al servidor
-        try{
-            await fetch('signIn', {
+        };
+
+        try {
+            const response = await fetch('signIn', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            }).then(response => response.json()).then((data)=>{
-                if(data === "fail"){
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Correo y/o contraseña incorrectos',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Bienvenido',
-                        text: 'Inicio de sesion exitoso',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    setTimeout(()=>{
-                        window.location.href = "inicio";
-                    }, 1500);
-                }
             });
-        }catch (e) {
-            console.error(e);
+
+            const result = await response.json();
+
+            if (result === "fail") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Correo y/o contraseña incorrectos',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Bienvenido',
+                    text: 'Inicio de sesión exitoso',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                setTimeout(() => {
+                    window.location.href = "inicio";
+                }, 1500);
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ha ocurrido un problema, inténtalo más tarde.',
+                showConfirmButton: true
+            });
         }
     });
 </script>
